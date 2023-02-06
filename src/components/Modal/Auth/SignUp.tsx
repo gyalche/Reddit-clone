@@ -11,6 +11,7 @@ const SignUp: React.FC = () => {
     confirmPassword: '',
   });
 
+  //Firebase login
   const onSubmit = () => {};
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
