@@ -13,6 +13,7 @@ const SignUp: React.FC = () => {
 
   //Firebase login
   const onSubmit = () => {};
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setSignUpForm((prev) => ({
@@ -91,7 +92,7 @@ const SignUp: React.FC = () => {
         Sign Up
       </Button>
       <Flex fontSize="9pt" justifyContent="center">
-        <Text mr={1}>Have an account?</Text>
+        <Text mr={1}>Already a redditor?</Text>
         <Text
           color="blue.500"
           fontWeight={700}
