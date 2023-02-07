@@ -64,7 +64,7 @@ const SignUp: React.FC = () => {
         placeholder="password"
         type="password"
         onChange={onChange}
-        maxLength={8}
+        maxLength={20}
         mb={2}
         fontSize="10pt"
         _placeholder={{ color: 'gray.500' }}
@@ -88,7 +88,7 @@ const SignUp: React.FC = () => {
         type="password"
         onChange={onChange}
         fontSize="10pt"
-        maxLength={8}
+        maxLength={20}
         _placeholder={{ color: 'gray.500' }}
         _hover={{
           bg: 'white',
@@ -103,12 +103,12 @@ const SignUp: React.FC = () => {
         }}
         bg="gray.50"
       />
-      {error ||
-        (userError && (
-          <Text textAlign="center" fontSize="10pt" color="red">
-            {error || firebase_errors[userError.message]}
-          </Text>
-        ))}
+
+      <Text textAlign="center" fontSize="10pt" color="red">
+        {error ||
+          firebase_errors[userError?.message as keyof typeof firebase_errors]}
+      </Text>
+
       <Button
         type="submit"
         width="100%"
