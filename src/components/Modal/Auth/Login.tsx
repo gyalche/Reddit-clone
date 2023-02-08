@@ -17,10 +17,11 @@ const Login: React.FC<LoginProps> = () => {
 
   const [signInWithEmailAndPassword, user, loading, error] =
     useSignInWithEmailAndPassword(auth);
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    signInWithEmailAndPassword(loginForm.email, loginForm.password);
+    await signInWithEmailAndPassword(loginForm.email, loginForm.password);
   };
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setLoginForm((prev) => ({
@@ -85,6 +86,23 @@ const Login: React.FC<LoginProps> = () => {
         isLoading={loading}>
         Log In
       </Button>
+      <Flex justifyContent="center" mb={2}>
+        <Text fontSize="9pt" mr={1}>
+          Forgot password?
+        </Text>
+        <Text
+          fontSize="9pt"
+          color="blue.500"
+          cursor="pointer"
+          onClick={() => {
+            setAuthModalState((prev) => ({
+              ...prev,
+              view: 'resresetPasswordet',
+            }));
+          }}>
+          Reset
+        </Text>
+      </Flex>
       <Flex fontSize="9pt" justifyContent="center">
         <Text mr={1}>New here?</Text>
         <Text

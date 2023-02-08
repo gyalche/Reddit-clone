@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -16,15 +16,26 @@ import { authModalState } from '@/atoms/authModealAtom';
 import { useRecoilState } from 'recoil';
 import AuthInputs from './AuthInputs';
 import OAuthButton from './OAuthButton';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '@/firebase/clientApp';
+import { calcLength } from 'framer-motion';
+import ResetPassword from './ResetPassword';
 
 const AuthModal: React.FC = () => {
   const [modalState, setModalState] = useRecoilState(authModalState);
+  const [user, loading, error] = useAuthState(auth);
+
   const handleClose = () => {
     setModalState((prev) => ({
       ...prev,
       open: false,
     }));
   };
+
+  useEffect(() => {
+    if (user) handleClose();
+    console.log('user', user);
+  }, [user]);
   return (
     <>
       <Modal isOpen={modalState.open} onClose={handleClose}>
@@ -47,14 +58,18 @@ const AuthModal: React.FC = () => {
               align="center"
               justify="center"
               width="70%">
-              {/*OAuthButton*/}
-              <OAuthButton />
-              {/*AuthInput*/}
-              <Text color="gray.400" fontWeight={700}>
-                OR
-              </Text>
-              <AuthInputs />
-              {/*ResetPassword*/}
+              {modalState.view === 'login' || modalState.view === 'signup' ? (
+                <>
+                  <OAuthButton />
+
+                  <Text color="gray.400" fontWeight={700}>
+                    OR
+                  </Text>
+                  <AuthInputs />
+                </>
+              ) : (
+                <ResetPassword />
+              )}
             </Flex>
           </ModalBody>
         </ModalContent>
