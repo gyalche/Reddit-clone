@@ -8,7 +8,7 @@ const Communities: React.FC<CommunitiesProps> = () => {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <CraeteCommunityModal open={open} />
+      <CraeteCommunityModal open={open} handleClose={() => setOpen(false)} />
       <MenuItem
         width="100%"
         fontSize="10pt"
