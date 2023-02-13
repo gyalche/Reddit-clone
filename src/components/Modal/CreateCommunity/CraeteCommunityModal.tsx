@@ -23,6 +23,8 @@ import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, firestore } from '@/firebase/clientApp';
 import { CgLayoutGrid } from 'react-icons/cg';
+import { useToast } from '@chakra-ui/react';
+
 type CraeteCommunityModalProps = {
   open: boolean;
   handleClose: () => void;
@@ -38,6 +40,7 @@ const CraeteCommunityModal: React.FC<CraeteCommunityModalProps> = ({
   const [loading, setLoading] = useState(false);
 
   const [user] = useAuthState(auth);
+  const toast = useToast();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.length > 21) return;
     setCommunityName(e.target.value);
@@ -52,6 +55,7 @@ const CraeteCommunityModal: React.FC<CraeteCommunityModalProps> = ({
   //create community function
   const handleCreateCommunity = async () => {
     try {
+      if (error) setError('');
       //validate community name;
       const format = /^[^* | \ " : < > [ ] { } ` \ ( ) '' ; @ & $]+$/;
       if (format.test(communityName) || communityName.length < 3) {
@@ -71,6 +75,7 @@ const CraeteCommunityModal: React.FC<CraeteCommunityModalProps> = ({
       if (communityDoc.exists()) {
         throw new Error(`Sorry, r/${communityName} is taken. Try another`);
       }
+      
       //create community document;
       await setDoc(communityDocRef, {
         creatorId: user?.uid,
@@ -78,12 +83,14 @@ const CraeteCommunityModal: React.FC<CraeteCommunityModalProps> = ({
         numberOfMembers: 1,
         privacyType: communityType,
       });
+      setCommunityName('');
     } catch (error: any) {
       console.log(error);
       setError(error.message);
     }
     setLoading(false);
   };
+
   return (
     <>
       <Modal isOpen={open} onClose={handleClose}>
