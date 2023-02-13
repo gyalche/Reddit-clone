@@ -19,7 +19,13 @@ import {
 } from '@chakra-ui/react';
 import { BsFillEyeFill, BsFillPersonFill } from 'react-icons/bs';
 import { HiLockClosed } from 'react-icons/hi';
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  runTransaction,
+  serverTimestamp,
+  setDoc,
+} from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, firestore } from '@/firebase/clientApp';
 import { CgLayoutGrid } from 'react-icons/cg';
@@ -70,19 +76,31 @@ const CraeteCommunityModal: React.FC<CraeteCommunityModalProps> = ({
       //if valid name, crete community;
 
       const communityDocRef = doc(firestore, 'communities', communityName);
-      //check if community exists in db;
-      const communityDoc = await getDoc(communityDocRef);
-      if (communityDoc.exists()) {
-        throw new Error(`Sorry, r/${communityName} is taken. Try another`);
-      }
-      
-      //create community document;
-      await setDoc(communityDocRef, {
-        creatorId: user?.uid,
-        createdAt: serverTimestamp(),
-        numberOfMembers: 1,
-        privacyType: communityType,
+
+      await runTransaction(firestore, async (transaction) => {
+        //check if community exists in db;
+        const communityDoc = await transaction.get(communityDocRef);
+        if (communityDoc.exists()) {
+          throw new Error(`Sorry, r/${communityName} is taken. Try another`);
+        }
+        //create community document;
+        transaction.set(communityDocRef, {
+          creatorId: user?.uid,
+          createdAt: serverTimestamp(),
+          numberOfMembers: 1,
+          privacyType: communityType,
+        });
+
+        //create communitySnippet on user;
+        transaction.set(
+          doc(firestore, `user/${user?.uid}/communityType`, communityName),
+          {
+            communityId: communityName,
+            isModerator: true,
+          }
+        );
       });
+
       setCommunityName('');
     } catch (error: any) {
       console.log(error);
