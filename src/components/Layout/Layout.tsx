@@ -1,10 +1,16 @@
 import React from 'react';
+import Navbar from '../Navbar/Navbar';
 
-// type Props = {
-//   children: ReactNode;
-// };
+interface Mit {
+  children: React.ReactNode;
+}
 
-const Layout: React.FC = () => {
-  return <div>Layout</div>;
+const Layout: React.FC = ({ children }: Mit) => {
+  return (
+    <div>
+      <Navbar />
+      <section>{children}</section>
+    </div>
+  );
 };
 export default Layout;
