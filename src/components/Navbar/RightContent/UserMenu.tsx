@@ -22,13 +22,19 @@ import { IoSparkTest } from 'react-icons/io';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase/clientApp';
 import { authModalState } from '@/atoms/authModealAtom';
-import { useSetRecoilState } from 'recoil';
+import { useResetRecoilState, useSetRecoilState } from 'recoil';
+import { communityState } from '@/atoms/communitiesAtom';
 type UserMenuProps = {
   user?: User | null;
 };
-
 const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
   const setAuthModalState = useSetRecoilState(authModalState);
+  const resetCommunityState = useResetRecoilState(communityState);
+  const logout = async () => {
+    await signOut(auth);
+    //clear community state;
+    resetCommunityState();
+  };
   return (
     <Menu>
       <MenuButton
@@ -95,7 +101,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                 bg: 'blue.500',
                 color: 'white',
               }}
-              onClick={() => signOut(auth)}>
+              onClick={logout}>
               <Flex align="center">
                 <Icon as={MdOutlineLogin} fontSize={20} mr={2} />
                 <Text>Logout</Text>
