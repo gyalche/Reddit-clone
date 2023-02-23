@@ -26,13 +26,13 @@ const useCommunityData = () => {
   const [error, setError] = useState('');
   const [user] = useAuthState(auth);
   const setAuthModalState = useSetRecoilState(authModalState);
+
   const onJoinOrLeaveCommunity = (
     communityData: Community,
     isJoined: boolean
   ) => {
     // is the user signed in?
     //if not=>open auth modal;
-
     if (!user) {
       //open model;
       setAuthModalState({ open: true, view: 'login' });
@@ -113,7 +113,6 @@ const useCommunityData = () => {
       });
       await batch.commit();
       //update recoil state->communityState.mySnippets
-
       setCommunityStateValue((prev) => ({
         ...prev,
         mySnippets: prev.mySnippets.filter(
