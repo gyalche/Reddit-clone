@@ -40,7 +40,6 @@ const NewPostForm: React.FC<NewPostFormProps> = () => {
     title: '',
     body: '',
   });
-
   const [selectedFile, setSelectedFile] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const handleCreatePost = async () => {};
