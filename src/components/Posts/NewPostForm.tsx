@@ -6,7 +6,20 @@ import { BiPoll } from 'react-icons/bi';
 import TabItem from './TabItem';
 import TextInputs from './PostForm/TextInputs';
 import ImageUpload from './PostForm/ImageUpload';
-type NewPostFormProps = {};
+import { Post } from '@/atoms/postAtom';
+import { User } from 'firebase/auth';
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  Timestamp,
+} from 'firebase/firestore';
+import { firestore, storage } from '@/firebase/clientApp';
+import { getDownloadURL, ref, uploadString } from 'firebase/storage';
+
+type NewPostFormProps = {
+  user: User;
+};
 
 const formTabs: TabItem[] = [
   {
@@ -35,7 +48,8 @@ export type TabItem = {
   title: string;
   icon: typeof Icon.argument;
 };
-const NewPostForm: React.FC<NewPostFormProps> = () => {
+const NewPostForm: React.FC<NewPostFormProps> = ({ user }) => {
+  // const router = userRouter();
   const [selectedTab, setSelectedTab] = useState(formTabs[0].title);
   const [textInputs, setTextInputs] = useState({
     title: '',
@@ -44,15 +58,41 @@ const NewPostForm: React.FC<NewPostFormProps> = () => {
   const [selectedFile, setSelectedFile] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
+  const [error, setError] = useState(false);
   //creating the post;
   const handleCreatePost = async () => {
+    const { communityId } = router.query;
     //create a new post object;=>type post;
-    const newPost: Post = {};
+    const newPost: Post = {
+      communityId: communityId as string,
+      creatorId: user?.uid,
+      creatorDisplayName: user.email?.split('@')[0],
+      title: textInput.title,
+      body: textInput.body,
+      numberOfComments: 0,
+      voteStatus: 0,
+      createdAt: serverTimestamp() as Timestamp,
+    };
+    setLoading(true);
     //store the post in db;
-    //check for selectedFile;
-    //store in storage;
-    //update the post doc by adding imageURL;
-    //redirect the user back to the communitypage using the router;
+    try {
+      const postDocRef = await addDoc(collection(firestore, 'posts'), newPost);
+      //check for selectedFile;
+      if (selectedFile) {
+        //store in storage;
+        const imageRef = ref(storage, `post/${postDocRef.id}/image`);
+        await uploadString(imageRef, selectedFile, 'data_url');
+        const downloadURL = await getDownloadURL(imageRef);
+        //update the post doc by adding imageURL;
+        await updateDoc(postDocRef, { imageURL: downloadURL });
+      }
+      //redirect the user back to the communitypage using the router;
+      router.back();
+    } catch (error) {
+      console.log('handleCreatePost error', error.message);
+      setError(true);
+    }
+    setLoading(false);
   };
 
   const onSelectImage = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,6 +146,7 @@ const NewPostForm: React.FC<NewPostFormProps> = () => {
           />
         )}
       </Flex>
+      {error && alert('error occured')}
     </Flex>
   );
 };
