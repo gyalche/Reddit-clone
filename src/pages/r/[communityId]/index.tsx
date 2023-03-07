@@ -1,6 +1,6 @@
-import React from 'react';
-import { Community } from '@/atoms/communitiesAtom';
-import { firestore } from '@/firebase/clientApp';
+import React, {useEffect} from 'react';
+import { Community, communityState } from '@/atoms/communitiesAtom';
+import { auth, firestore } from '@/firebase/clientApp';
 import { doc, getDoc } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import safeJsonStringify from 'safe-json-stringify';
@@ -9,6 +9,8 @@ import Header from '@/components/Community/Header';
 import PageContent from '@/components/Layout/PageContent';
 import CreatePostLink from '@/components/Community/CreatePostLink';
 import Posts from '@/components/Posts/Posts';
+import { useResetRecoilState } from 'recoil';
+import About from '@/components/Community/About';
 
 type CommunityPageProps = {
   communityData: Community;
@@ -16,9 +18,15 @@ type CommunityPageProps = {
 
 const CommunityPage: React.FC<CommunityPageProps> = ({ communityData }) => {
   console.log('madar choard', communityData);
-  if (!communityData) {
+  const setCommunityStateValue=useResetRecoilState(communityState);
     return <NotFound />;
   }
+  useEffect(() => {
+    setCommunityStateValue(prev=>({
+      ...prev, currentCommunity:communityData;
+    }))
+  }, []);
+  
   return (
     <>
       <Header communityData={communityData} />
@@ -28,7 +36,7 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ communityData }) => {
           <Posts communityData={communityData} />
         </>
         <>
-          <div>RHS</div>
+          <About />
         </>
       </PageContent>
     </>
@@ -38,8 +46,6 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ communityData }) => {
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   //get community data and pass it to client;
   try {
-    // const { query } = context;
-    console.log('context', context);
     const communityDocRef = doc(
       firestore,
       'communities',

@@ -16,6 +16,7 @@ import {
 } from 'firebase/firestore';
 import { firestore, storage } from '@/firebase/clientApp';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
+import useSelectFile from '@/hooks/useSelectFile';
 
 type NewPostFormProps = {
   user: User;
@@ -55,7 +56,8 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ user }) => {
     title: '',
     body: '',
   });
-  const [selectedFile, setSelectedFile] = useState<string>('');
+  const { selectedFile, setSelectedFile, onSelectFile } = useSelectFile();
+
   const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState(false);
@@ -63,6 +65,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ user }) => {
   const handleCreatePost = async () => {
     const { communityId } = router.query;
     //create a new post object;=>type post;
+
     const newPost: Post = {
       communityId: communityId as string,
       creatorId: user?.uid,
@@ -93,18 +96,6 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ user }) => {
       setError(true);
     }
     setLoading(false);
-  };
-
-  const onSelectImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const reader = new FileReader();
-    if (event.target.files[0]) {
-      reader.readAsDataURL(event.target.files[0]);
-    }
-    reader.onload = (readerEvent) => {
-      if (readerEvent.target?.result) {
-        setSelectedFile(readerEvent.target.result as string);
-      }
-    };
   };
 
   const onTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,7 +130,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ user }) => {
         )}
         {selectedTab === 'Images & Video' && (
           <ImageUpload
-            onSelectImage={onSelectImage}
+            onSelectImage={onSelectFile}
             selectedFile={selectedFile}
             setSelectedTab={setSelectedTab}
             setSelectedFile={setSelectedFile}
